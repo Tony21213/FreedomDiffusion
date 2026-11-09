@@ -77,12 +77,12 @@ class MainActivity : Activity() {
                         if(offset>0) setRequestProperty("Range","bytes=$offset-")
                     }
                 connection=connect(start)
-                if(start>0 && (connection.responseCode!=206 || !connection.getHeaderField("Content-Range").orEmpty().startsWith("bytes $start-"))) {
-                    connection.disconnect(); part.delete(); start=0; connection=connect(0)
+                if(start>0 && (connection!!.responseCode!=206 || !connection!!.getHeaderField("Content-Range").orEmpty().startsWith("bytes $start-"))) {
+                    connection!!.disconnect(); part.delete(); start=0; connection=connect(0)
                 }
-                if(connection.responseCode !in 200..299) error("HTTP ${connection.responseCode}")
-                val expected=connection.contentLengthLong.takeIf { it>0 }?.plus(start)
-                connection.inputStream.use { src -> FileOutputStream(part,start>0).use { dst ->
+                if(connection!!.responseCode !in 200..299) error("HTTP ${connection!!.responseCode}")
+                val expected=connection!!.contentLengthLong.takeIf { it>0 }?.plus(start)
+                connection!!.inputStream.use { src -> FileOutputStream(part,start>0).use { dst ->
                     val chunk=ByteArray(131072)
                     var count=start
                     var prev=-1
