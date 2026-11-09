@@ -15,13 +15,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Configure Android SDK
+      - name: Install Android command-line tools
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
-          command -v sdkmanager || find "$ANDROID_HOME" -name sdkmanager -type f
-      - name: Install NDK and SDK
-        run: |
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.2.12479018' 'cmake;3.22.1'
+          set -euxo pipefail
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          curl -fL --retry 3 -o /tmp/android-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q /tmp/android-tools.zip -d /tmp/android-cli
+          mv /tmp/android-cli/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.2.12479018' 'cmake;3.22.1'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
